@@ -23,3 +23,8 @@ spring:
 logging:
   level:
     org.hibernate.sql: info
+
+ledger:
+  snapshot:
+    interval-ms: 300000
+    initial-delay-ms: 300000

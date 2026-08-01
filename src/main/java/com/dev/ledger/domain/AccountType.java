@@ -5,7 +5,8 @@ public enum AccountType {
     EXPENSE(Side.DEBIT),
     LIABILITY(Side.CREDIT),
     EQUITY(Side.CREDIT),
-    REVENUE(Side.CREDIT);
+    REVENUE(Side.CREDIT),
+    FX_CLEARING(Side.DEBIT);
 
     private final Side normalSide;
 

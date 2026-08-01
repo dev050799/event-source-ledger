@@ -8,6 +8,7 @@ import com.dev.ledger.exception.AccountNotFoundException;
 import com.dev.ledger.repository.AccountBalanceRepository;
 import com.dev.ledger.repository.AccountRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -23,11 +24,11 @@ public class AccountService {
         this.accountBalanceRepository = accountBalanceRepository;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Account create(String name, AccountType type, String currency, long creditLimit) {
         UUID id = UUID.randomUUID();
         Side normalSide = type.normalSide();
-        Account account = accountRepository.save(new Account(id, name, type, normalSide, currency, creditLimit));
+        Account account = accountRepository.saveAndFlush(new Account(id, name, type, normalSide, currency, creditLimit));
         accountBalanceRepository.save(new AccountBalance(id, creditLimit));
         return account;
     }

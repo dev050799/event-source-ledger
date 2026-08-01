@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -38,6 +39,24 @@ public class SnapshotService {
         long count = entryRepository.countByAccountId(accountId);
         return accountSnapshotRepository.save(new AccountSnapshot(accountId, bal.getLastSequence(), Instant.now(),
                 bal.getBalance(), count));
+    }
+
+    @Transactional
+    public Optional<AccountSnapshot> snapshotIfChanged(UUID accountId) {
+        AccountBalance bal = accountBalanceRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        long lastSnapshotSequence = accountSnapshotRepository.findLatest(accountId)
+                .map(AccountSnapshot::getAsOfSequence)
+                .orElse(0L);
+
+        if (bal.getLastSequence() <= lastSnapshotSequence) {
+            return Optional.empty();
+        }
+
+        long count = entryRepository.countByAccountId(accountId);
+        return Optional.of(accountSnapshotRepository.save(new AccountSnapshot(accountId, bal.getLastSequence(),
+                Instant.now(), bal.getBalance(), count)));
     }
 
     @Transactional(readOnly = true)
